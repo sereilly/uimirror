@@ -1,7 +1,7 @@
 # UIMirror
 UIMirror is a Unity plugin that provides live and interactive remoting of Unity canvas UI to one or more external devices.
 
-##Setup
+## Setup
 
 ### Server (Host) Setup
 
