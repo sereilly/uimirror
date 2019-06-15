@@ -1,0 +1,16 @@
+{
+    "name": "UIMirrorCore",
+    "references": [
+        "Telepathy",
+        "FossilDelta",
+        "Unity.TextMeshPro"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

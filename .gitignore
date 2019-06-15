@@ -1,0 +1,18 @@
+syntax: glob
+.vs/*
+Library/*
+obj/*
+Temp/*
+.gradle/*
+Build/*
+WindowsStoreApp/*
+UIMirror.sln
+*.csproj
+UWP/*
+ILCPP/*
+Assets/TextMesh Pro/*
+Assets/TextMesh Pro.meta
+Assets/WSATestCertificate.pfx*
+
+.hgignore
+.hg
