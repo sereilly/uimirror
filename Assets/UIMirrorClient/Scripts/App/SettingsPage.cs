@@ -7,10 +7,13 @@ public class SettingsPage : MonoBehaviour
 {
     [SerializeField]
     protected Slider backgroundSlider;
+    [SerializeField]
+    protected Toggle vibrateToggle;
 
     protected void Start()
     {
         backgroundSlider.value = AppSettings.Instance.Background;
+        vibrateToggle.isOn = AppSettings.Instance.Vibrate;
     }
 
     public void SliderChanged()
@@ -18,5 +21,10 @@ public class SettingsPage : MonoBehaviour
         float background = backgroundSlider.value;
         AppSettings.Instance.Background = background;
 
+    }
+
+    public void VibrateToggled()
+    {
+        AppSettings.Instance.Vibrate = vibrateToggle.isOn;
     }
 }

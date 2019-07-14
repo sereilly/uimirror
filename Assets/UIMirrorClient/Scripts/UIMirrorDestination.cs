@@ -22,7 +22,7 @@ public class UIMirrorDestination : MonoBehaviour
         Clear();
     }
 
-    public void Deserialize(byte[] bytes)
+    public GameObject Deserialize(byte[] bytes)
     {
         ObjectData objectData;
         using (MemoryStream ms = new MemoryStream(bytes))
@@ -32,6 +32,7 @@ public class UIMirrorDestination : MonoBehaviour
         root.ID = objectData.ID;
         root = Deserialize(objectData, root, null);
         ObjectCache.BindAll();
+        return root.gameObject;
     }
 
     private Node Deserialize(ObjectData objectData, Node node, Transform parent)

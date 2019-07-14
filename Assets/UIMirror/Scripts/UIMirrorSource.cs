@@ -65,6 +65,11 @@ public class UIMirrorSource : MonoBehaviour
         InitCanvas();
     }
 
+    protected void OnDisable()
+    {
+        waitHandle.Set();
+    }
+
     private void InitCanvas()
     {
         if (canvas == null)
@@ -101,13 +106,14 @@ public class UIMirrorSource : MonoBehaviour
         }
     }
 
-    public void SerializeTask(ConcurrentQueue<byte[]> queue)
+    public void SerializeTask(ConcurrentQueue<byte[]> queue, CancellationToken ct)
     {
         try
         {
             while (true)
             {
                 waitHandle.WaitOne();
+                ct.ThrowIfCancellationRequested();
                 ObjectData objectData;
                 while (objectDataQueue.TryDequeue(out objectData))
                 {
@@ -121,7 +127,10 @@ public class UIMirrorSource : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError(e);
+            if (e.GetType() != typeof(OperationCanceledException))
+            {
+                Debug.LogError(e);
+            }
         }
     }
 
@@ -164,16 +173,9 @@ public class UIMirrorSource : MonoBehaviour
                 objectData.elementsData.Add(elementData);
 
             }
-            else if (layoutElement.GetType() != typeof(CanvasScaler) && layoutElement.GetType() != typeof(GraphicRaycaster))
-            {
-                Debug.LogWarningFormat("No matching ILayoutSerializer for type {0}", layoutElement.GetType());
-            }
         }
 
-        if (!isRoot)
-        {
-            objectData.transformData = UIMirrorManager.Instance.TransformSerializer.Serialize(go.GetComponent<RectTransform>());
-        }
+        objectData.transformData = UIMirrorManager.Instance.TransformSerializer.Serialize(go.GetComponent<RectTransform>());
 
         foreach (Transform child in go.transform)
         {

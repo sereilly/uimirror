@@ -28,6 +28,19 @@ public class AppSettings : MonoBehaviour
         }
     }
 
+    public bool Vibrate
+    {
+        get
+        {
+            return PlayerPrefs.GetInt("Vibrate", 1) != 0;
+        }
+
+        set
+        {
+            PlayerPrefs.SetInt("Vibrate", value ? 1 : 0);
+        }
+    }
+
     private void UpdateBackground()
     {
         float background = Background;

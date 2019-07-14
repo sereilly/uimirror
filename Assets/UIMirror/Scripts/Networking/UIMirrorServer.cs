@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class UIMirrorServer : MonoBehaviour
 {
     [SerializeField]
     protected UIMirrorSource sourceCanvas;
+
+    private CancellationTokenSource tokenSource;
 
     public class Connection
     {
@@ -24,8 +27,35 @@ public class UIMirrorServer : MonoBehaviour
         NetworkManager.Instance.ClientConnected += Instance_ClientConnected;
         NetworkManager.Instance.ClientDisconnected += Instance_ClientDisconnected;
         NetworkManager.Instance.ClientMessage += Instance_Message;
+        Application.logMessageReceived += Application_logMessageReceived;
 
-        Task.Run(() => sourceCanvas.SerializeTask(canvasDataQueue));
+        tokenSource = new CancellationTokenSource();
+        CancellationToken ct = tokenSource.Token;
+        Task.Run(() => sourceCanvas.SerializeTask(canvasDataQueue, ct), ct);
+    }
+
+    private void Application_logMessageReceived(string message, string stackTrace, LogType type)
+    {
+        if (NetworkManager.Instance)
+        {
+            byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            byte[] messageBuffer = new byte[messageBytes.Length + 4];
+            messageBuffer[0] = (byte)'C';
+            messageBuffer[1] = (byte)'O';
+            messageBuffer[2] = (byte)'N';
+            messageBuffer[3] = (byte)type;
+            Array.Copy(messageBytes, 0, messageBuffer, 4, messageBytes.Length);
+
+            foreach (int connectionId in connections.Keys)
+            {
+                NetworkManager.Instance.SendMessage(connectionId, messageBuffer);
+            }
+        }
+    }
+
+    protected void OnDisable()
+    {
+        tokenSource.Cancel();
     }
 
     private void Instance_Message(byte[] message)

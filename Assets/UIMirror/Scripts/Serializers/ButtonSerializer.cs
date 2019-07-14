@@ -34,7 +34,10 @@ public class ButtonSerializer : MonoBehaviour, ILayoutSerializer
             {
                 InputMessage inputMessage = new InputMessage(InputMessageType.Button, buttonData.objectID);
                 NetworkManager.Instance.SendMessageToServer(inputMessage.Serialize());
-                Handheld.Vibrate();
+                if (AppSettings.Instance.Vibrate)
+                {
+                    Handheld.Vibrate();
+                }
             });
         }
     }

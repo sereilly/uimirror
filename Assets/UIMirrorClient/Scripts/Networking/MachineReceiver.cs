@@ -52,10 +52,17 @@ public class MachineReceiver : MonoBehaviour
 #else
     private void Receive(IAsyncResult ar)
     {
+        try
+        {
+            byte[] bytes = udp.EndReceive(ar, ref ip);
+            OnMessage(bytes);
+            udp.BeginReceive(Receive, new object());
+        }
+        catch (ObjectDisposedException)
+        {
+            // ignore ObjectDisposedException from EndReceive
+        }
 
-        byte[] bytes = udp.EndReceive(ar, ref ip);
-        OnMessage(bytes);
-        udp.BeginReceive(Receive, new object());
     }
 #endif
 

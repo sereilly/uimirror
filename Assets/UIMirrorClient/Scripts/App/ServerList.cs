@@ -16,6 +16,8 @@ public class ServerList : MonoBehaviour
 
     [SerializeField]
     protected Button buttonPrefab;
+    [SerializeField]
+    protected InputField ipInputField;
 
     private struct Machine
     {
@@ -92,5 +94,10 @@ public class ServerList : MonoBehaviour
             buttons.Remove(button);
             Destroy(button.gameObject);
         }
+    }
+
+    public void ManualConnect()
+    {
+        NetworkManager.Instance.ConnectToServer(ipInputField.text);
     }
 }
