@@ -1,7 +1,7 @@
 {
     "name": "UIMirrorCore",
     "references": [
-        "Telepathy",
+        "Socketer",
         "FossilDelta",
         "Unity.TextMeshPro"
     ],

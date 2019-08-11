@@ -131,6 +131,9 @@ public class PanZoom : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        clientCamera.transform.localPosition -= new Vector3(eventData.delta.x, eventData.delta.y) * canvasTransform.GetComponent<Canvas>().scaleFactor * 0.5f;
+        if (Input.touchCount == 1)
+        {
+            clientCamera.transform.localPosition -= new Vector3(eventData.delta.x, eventData.delta.y) * canvasTransform.GetComponent<Canvas>().scaleFactor * 0.5f;
+        }
     }
 }

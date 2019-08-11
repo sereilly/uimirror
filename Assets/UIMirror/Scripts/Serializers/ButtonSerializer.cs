@@ -15,12 +15,12 @@ public class ButtonData : ElementData<Button>
     public int objectID;
 }
 
-public class ButtonSerializer : MonoBehaviour, ILayoutSerializer
+public class ButtonSerializer : ILayoutSerializer
 {
     public Type LayoutElementType => typeof(Button);
     public Type LayoutDataType => typeof(ButtonData);
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         ButtonData buttonData = elementData as ButtonData;
         Button buttonElement = element as Button;
@@ -29,16 +29,20 @@ public class ButtonSerializer : MonoBehaviour, ILayoutSerializer
             ColorBlock colorBlock = buttonElement.colors;
             colorBlock.normalColor = buttonData.normalColor.Deserialize();
             buttonElement.colors = colorBlock;
-            buttonElement.onClick.RemoveAllListeners();
-            buttonElement.onClick.AddListener(() =>
+
+            if (networkManager)
             {
-                InputMessage inputMessage = new InputMessage(InputMessageType.Button, buttonData.objectID);
-                NetworkManager.Instance.SendMessageToServer(inputMessage.Serialize());
-                if (AppSettings.Instance.Vibrate)
+                buttonElement.onClick.RemoveAllListeners();
+                buttonElement.onClick.AddListener(() =>
                 {
-                    Handheld.Vibrate();
-                }
-            });
+                    InputMessage inputMessage = new InputMessage(InputMessageType.Button, buttonData.objectID);
+                    networkManager.SendMessageToServer(inputMessage.Serialize());
+                    if (AppSettings.Instance.Vibrate)
+                    {
+                        Handheld.Vibrate();
+                    }
+                });
+            }
         }
     }
 

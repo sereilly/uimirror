@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.MixedReality.SpectatorView;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,6 +10,8 @@ public class UIMirrorServer : MonoBehaviour
 {
     [SerializeField]
     protected UIMirrorSource sourceCanvas;
+    [SerializeField]
+    protected Socketer socketerServer;
 
     private CancellationTokenSource tokenSource;
 
@@ -24,9 +26,9 @@ public class UIMirrorServer : MonoBehaviour
 
     protected void Start()
     {
-        NetworkManager.Instance.ClientConnected += Instance_ClientConnected;
-        NetworkManager.Instance.ClientDisconnected += Instance_ClientDisconnected;
-        NetworkManager.Instance.ClientMessage += Instance_Message;
+        socketerServer.Connected += Instance_ClientConnected;
+        socketerServer.Disconnected += Instance_ClientDisconnected;
+        socketerServer.Message += Instance_Message;
         Application.logMessageReceived += Application_logMessageReceived;
 
         tokenSource = new CancellationTokenSource();
@@ -36,7 +38,7 @@ public class UIMirrorServer : MonoBehaviour
 
     private void Application_logMessageReceived(string message, string stackTrace, LogType type)
     {
-        if (NetworkManager.Instance)
+        if (socketerServer)
         {
             byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
             byte[] messageBuffer = new byte[messageBytes.Length + 4];
@@ -48,7 +50,7 @@ public class UIMirrorServer : MonoBehaviour
 
             foreach (int connectionId in connections.Keys)
             {
-                NetworkManager.Instance.SendMessage(connectionId, messageBuffer);
+                socketerServer.SendNetworkMessage(messageBuffer, connectionId);
             }
         }
     }
@@ -56,11 +58,12 @@ public class UIMirrorServer : MonoBehaviour
     protected void OnDisable()
     {
         tokenSource.Cancel();
+        sourceCanvas.SetWaitHandle();
     }
 
-    private void Instance_Message(byte[] message)
+    private void Instance_Message(Socketer socketer, MessageEvent messageEvent)
     {
-        InputMessage inputMessage = InputMessage.Deserialize(message);
+        InputMessage inputMessage = InputMessage.Deserialize(messageEvent.Message);
         switch (inputMessage.type)
         {
             case InputMessageType.Button:
@@ -72,15 +75,15 @@ public class UIMirrorServer : MonoBehaviour
         }        
     }
 
-    private void Instance_ClientConnected(int connectionId)
+    private void Instance_ClientConnected(Socketer socketer, MessageEvent e)
     {
         Connection connection = new Connection();
-        connections[connectionId] = connection;
+        connections[e.SourceId] = connection;
     }
 
-    private void Instance_ClientDisconnected(int connectionId)
+    private void Instance_ClientDisconnected(Socketer socketer, MessageEvent e)
     {
-        connections.Remove(connectionId);
+        connections.Remove(e.SourceId);
     }
 
     protected void LateUpdate()
@@ -104,7 +107,7 @@ public class UIMirrorServer : MonoBehaviour
                     byte[] delta = Fossil.Delta.Create(connectionData, canvasData);
                     if (delta.Length > 17) // ignore checksum data
                     {
-                        NetworkManager.Instance.SendMessage(connectionId, delta);
+                        socketerServer.SendNetworkMessage(delta, connectionId);
                     }
                 });
             }

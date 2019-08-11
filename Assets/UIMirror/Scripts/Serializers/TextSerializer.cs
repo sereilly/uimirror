@@ -21,7 +21,7 @@ public class TextData : ElementData<Text>
     public QuaternionData quaternionData;
 }
 
-public class TextSerializer : MonoBehaviour, ILayoutSerializer
+public class TextSerializer : ILayoutSerializer
 {
     public Type LayoutElementType => typeof(Text);
     public Type LayoutDataType => typeof(TextData);
@@ -41,7 +41,7 @@ public class TextSerializer : MonoBehaviour, ILayoutSerializer
         return textData;
     }
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         TextData textData = elementData as TextData;
         Text textElement = element as Text;

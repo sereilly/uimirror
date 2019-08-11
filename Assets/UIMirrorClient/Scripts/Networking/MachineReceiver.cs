@@ -1,76 +1,28 @@
-﻿using System;
+﻿using Microsoft.MixedReality.SpectatorView;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
-#if NETFX_CORE
-using System.Threading.Tasks;
-#endif
 using UnityEngine;
 
 public class MachineReceiver : MonoBehaviour
 {
     [SerializeField]
-    protected int port = 15000;
+    protected Socketer socketer;
 
-    public delegate void MachineFoundEvent(string machineName, IPEndPoint ip);
+    public delegate void MachineFoundEvent(string machineName, string ip);
     public event MachineFoundEvent MachineFound;
 
     private const string opcode = "UIM";
-    private UdpClient udp;
-    private IPEndPoint ip;
 
-    protected void OnEnable()
+    protected void Awake()
     {
-        udp = new UdpClient();
-        udp.ExclusiveAddressUse = false;
-        udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-        ip = new IPEndPoint(IPAddress.Any, port);
-        udp.Client.Bind(ip);
-#if NETFX_CORE
-        
-        udp.ReceiveAsync().ContinueWith(Receive);
-#else
-        udp.BeginReceive(Receive, new object());
-#endif
+        socketer.StartServer();
+        socketer.Message += Socketer_Message;
     }
 
-    protected void OnDisable()
-    {
-#if NETFX_CORE
-        udp.Dispose();
-#else
-        udp.Close();
-#endif
-    }
-
-#if NETFX_CORE
-        private void Receive(Task<UdpReceiveResult> task)
-        {
-            OnMessage(task.Result.Buffer);
-            udp.ReceiveAsync().ContinueWith(Receive);
-        }
-#else
-    private void Receive(IAsyncResult ar)
+    private void Socketer_Message(Socketer arg1, MessageEvent messageEvent)
     {
         try
         {
-            byte[] bytes = udp.EndReceive(ar, ref ip);
-            OnMessage(bytes);
-            udp.BeginReceive(Receive, new object());
-        }
-        catch (ObjectDisposedException)
-        {
-            // ignore ObjectDisposedException from EndReceive
-        }
-
-    }
-#endif
-
-    private void OnMessage(byte[] bytes)
-    {
-        try
-        { 
-            using (MemoryStream ms = new MemoryStream(bytes))
+            using (MemoryStream ms = new MemoryStream(messageEvent.Message))
             {
                 using (BinaryReader br = new BinaryReader(ms))
                 {
@@ -78,7 +30,7 @@ public class MachineReceiver : MonoBehaviour
                     if (op == opcode)
                     {
                         string machineName = br.ReadString();
-                        MachineFound?.Invoke(machineName, ip);
+                        MachineFound?.Invoke(machineName, messageEvent.SourceHost);
                     }
                 }
             }

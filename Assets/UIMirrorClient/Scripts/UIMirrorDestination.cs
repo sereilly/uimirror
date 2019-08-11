@@ -15,6 +15,9 @@ public class Node
 
 public class UIMirrorDestination : MonoBehaviour
 {
+    [SerializeField]
+    protected NetworkManager networkManager;
+
     private Node root;
 
     protected void Awake()
@@ -73,7 +76,7 @@ public class UIMirrorDestination : MonoBehaviour
             if (layoutElement)
             {
                 ILayoutSerializer serializer = UIMirrorManager.Instance.GetLayoutSerializer(layoutElement.GetType());
-                serializer.Deserialize(elementData, layoutElement as UIBehaviour);
+                serializer.Deserialize(networkManager, elementData, layoutElement as UIBehaviour);
             }
         }
 

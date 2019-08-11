@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [ProtoContract]
 public class TransformData
 {
@@ -22,7 +21,7 @@ public class TransformData
     public Vector2Data pivot;
 }
 
-public class TransformSerializer : MonoBehaviour
+public class TransformSerializer
 {
     private static HashSet<RectTransform> ignoreList = new HashSet<RectTransform>();
 

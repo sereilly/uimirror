@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.MixedReality.SpectatorView;
+using System;
 using System.Collections;
 using System.IO;
 using System.Net;
@@ -15,35 +16,23 @@ public class MachineBroadcaster : MonoBehaviour
     [SerializeField]
     protected float broadcastInterval = 3.0f;
     [SerializeField]
-    protected int port = 15000;
+    protected Socketer socketer;
 
     private const string opcode = "UIM";
 
-    private UdpClient client;
     private byte[] udpMessage;
-    private IPEndPoint ip;
     private WaitForSeconds broadcastWait;
 
     protected void OnEnable()
     {
-        client = new UdpClient();
-        ip = new IPEndPoint(IPAddress.Broadcast, port);
         broadcastWait = new WaitForSeconds(broadcastInterval);
 
         if (udpMessage == null)
         {
             InitMessage();
+            socketer.StartClient();
         }
         StartCoroutine(BroadcastIpCo());
-    }
-
-    protected void OnDisable()
-    {
-#if NETFX_CORE
-        client.Dispose();
-#else
-        client.Close();
-#endif
     }
 
     private void InitMessage()
@@ -75,11 +64,7 @@ public class MachineBroadcaster : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         while (true)
         {
-#if NETFX_CORE
-            client.SendAsync(udpMessage, udpMessage.Length, ip);
-#else
-            client.Send(udpMessage, udpMessage.Length, ip);
-#endif
+            socketer.SendNetworkMessage(udpMessage);
             yield return broadcastWait;
         }
     }

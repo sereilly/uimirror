@@ -8,6 +8,9 @@ public class ServerList : MonoBehaviour
 {
     [SerializeField]
     protected MachineReceiver machineReceiver;
+    [SerializeField]
+    protected NetworkManager networkManager;
+
     public static ServerList Instance { get; private set; }
     ConcurrentDictionary<Machine, float> machines = new ConcurrentDictionary<Machine, float>();
     private const float addressTimeout = 4.0f;
@@ -31,9 +34,8 @@ public class ServerList : MonoBehaviour
         machineReceiver.MachineFound += MachineReceiver_MachineFound;
     }
 
-    private void MachineReceiver_MachineFound(string machineName, System.Net.IPEndPoint ip)
+    private void MachineReceiver_MachineFound(string machineName, string address)
     {
-        string address = ip.Address.ToString();
         Add(machineName, address);
     }
 
@@ -76,7 +78,7 @@ public class ServerList : MonoBehaviour
 
         button.onClick.AddListener(() =>
         {
-            NetworkManager.Instance.ConnectToServer(machine.Address);
+            networkManager.ConnectToServer(machine.Address);
         });
 
         string label = string.Format("{0} ({1})", machine.Name, machine.Address);
@@ -98,6 +100,6 @@ public class ServerList : MonoBehaviour
 
     public void ManualConnect()
     {
-        NetworkManager.Instance.ConnectToServer(ipInputField.text);
+        networkManager.ConnectToServer(ipInputField.text);
     }
 }

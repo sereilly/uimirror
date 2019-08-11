@@ -10,7 +10,7 @@ public class UIMirrorManager : MonoBehaviour
 
     private Dictionary<Type, ILayoutSerializer> layoutSerializers = new Dictionary<Type, ILayoutSerializer>();
 
-    public TransformSerializer TransformSerializer;
+    public TransformSerializer TransformSerializer = new TransformSerializer();
 
     protected void Awake()
     {
@@ -28,7 +28,15 @@ public class UIMirrorManager : MonoBehaviour
     private void RegisterSerializers()
     {
         MetaType edb = RuntimeTypeModel.Default.Add(typeof(ElementDataBase), true);
-        var serializers = GetComponentsInChildren<MonoBehaviour>().OfType<ILayoutSerializer>();
+        var serializers = new ILayoutSerializer[]
+        {
+            new ButtonSerializer(),
+            new ImageSerializer(),
+            new RawImageSerializer(),
+            new SliderSerializer(),
+            new TextMeshProSerializer(),
+            new TextSerializer()
+        };
         foreach (ILayoutSerializer serializer in serializers)
         {
             Register(serializer, edb);

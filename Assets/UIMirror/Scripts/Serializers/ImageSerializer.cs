@@ -15,7 +15,7 @@ public class ImageData : ElementData<Image>
     public Image.Type type;
 }
 
-public class ImageSerializer : MonoBehaviour, ILayoutSerializer
+public class ImageSerializer : ILayoutSerializer
 {
     public Type LayoutElementType => typeof(Image);
     public Type LayoutDataType => typeof(ImageData);
@@ -34,7 +34,7 @@ public class ImageSerializer : MonoBehaviour, ILayoutSerializer
         return imageData;
     }
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         ImageData imageData = elementData as ImageData;
         Image imageElement = element as Image;

@@ -65,11 +65,6 @@ public class UIMirrorSource : MonoBehaviour
         InitCanvas();
     }
 
-    protected void OnDisable()
-    {
-        waitHandle.Set();
-    }
-
     private void InitCanvas()
     {
         if (canvas == null)
@@ -93,6 +88,11 @@ public class UIMirrorSource : MonoBehaviour
             canvas.enabled = false;
         }
 #endif
+    }
+
+    public void SetWaitHandle()
+    {
+        waitHandle.Set();
     }
 
     public void Serialize(ConcurrentQueue<byte[]> queue)
@@ -125,15 +125,15 @@ public class UIMirrorSource : MonoBehaviour
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            
+        }
         catch (Exception e)
         {
-            if (e.GetType() != typeof(OperationCanceledException))
-            {
-                Debug.LogError(e);
-            }
+            Debug.LogError(e);
         }
     }
-
 
     public void InvokeButton(int id)
     {

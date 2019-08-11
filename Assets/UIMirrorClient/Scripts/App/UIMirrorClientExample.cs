@@ -2,10 +2,13 @@
 
 public class UIMirrorClientExample : MonoBehaviour
 {
+    [SerializeField]
+    protected NetworkManager networkManager;
+
     protected void Start()
     {
-        NetworkManager.Instance.ServerConnected += Instance_ServerConnected;
-        NetworkManager.Instance.ServerDisconnected += Instance_ServerDisconnected;
+        networkManager.ServerConnected += Instance_ServerConnected;
+        networkManager.ServerDisconnected += Instance_ServerDisconnected;
     }
 
     private void Instance_ServerDisconnected()

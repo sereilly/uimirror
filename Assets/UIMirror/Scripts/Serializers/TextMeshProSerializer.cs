@@ -21,7 +21,7 @@ public class TextMeshProData : ElementData<TextMeshProUGUI>
     public QuaternionData quaternionData;
 }
 
-public class TextMeshProSerializer : MonoBehaviour, ILayoutSerializer
+public class TextMeshProSerializer : ILayoutSerializer
 {
     public Type LayoutElementType => typeof(TextMeshProUGUI);
     public Type LayoutDataType => typeof(TextMeshProData);
@@ -41,7 +41,7 @@ public class TextMeshProSerializer : MonoBehaviour, ILayoutSerializer
         return textData;
     }
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         TextMeshProData textData = elementData as TextMeshProData;
         TextMeshProUGUI textElement = element as TextMeshProUGUI;

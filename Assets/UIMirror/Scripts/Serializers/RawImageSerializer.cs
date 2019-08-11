@@ -15,7 +15,7 @@ public class RawImageData : ElementData<RawImage>
     public RectData uvRect;
 }
 
-public class RawImageSerializer : MonoBehaviour, ILayoutSerializer
+public class RawImageSerializer : ILayoutSerializer
 {
     public Type LayoutElementType => typeof(RawImage);
     public Type LayoutDataType => typeof(RawImageData);
@@ -34,7 +34,7 @@ public class RawImageSerializer : MonoBehaviour, ILayoutSerializer
         return imageData;
     }
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         RawImageData imageData = elementData as RawImageData;
         RawImage imageElement = element as RawImage;

@@ -19,8 +19,11 @@ public class SliderData : ElementData<Slider>
     public int ID;
 }
 
-public class SliderSerializer : MonoBehaviour, ILayoutSerializer
+public class SliderSerializer : ILayoutSerializer
 {
+    [SerializeField]
+    protected NetworkManager networkManager;
+
     public Type LayoutElementType => typeof(Slider);
     public Type LayoutDataType => typeof(SliderData);
 
@@ -44,7 +47,7 @@ public class SliderSerializer : MonoBehaviour, ILayoutSerializer
         return sliderData;
     }
 
-    public void Deserialize(ElementDataBase elementData, UIBehaviour element)
+    public void Deserialize(NetworkManager networkManager, ElementDataBase elementData, UIBehaviour element)
     {
         SliderData sliderData = elementData as SliderData;
         Slider sliderElement = element as Slider;
@@ -70,17 +73,20 @@ public class SliderSerializer : MonoBehaviour, ILayoutSerializer
             IgnoreTransformUpdates(sliderElement.fillRect);
             IgnoreTransformUpdates(sliderElement.handleRect);
 
-            sliderElement.onValueChanged.AddListener((value) =>
+            if (networkManager)
             {
-                if (ignoreCallback)
+                sliderElement.onValueChanged.AddListener((value) =>
                 {
-                    return;
-                }
-                sentValue = value;
-                InputMessage inputMessage = new InputMessage(InputMessageType.Slider, sliderData.ID, value);
-                NetworkManager.Instance.SendMessageToServer(inputMessage.Serialize());
-                ignoreServerUpdates = true;
-            });
+                    if (ignoreCallback)
+                    {
+                        return;
+                    }
+                    sentValue = value;
+                    InputMessage inputMessage = new InputMessage(InputMessageType.Slider, sliderData.ID, value);
+                    networkManager.SendMessageToServer(inputMessage.Serialize());
+                    ignoreServerUpdates = true;
+                });
+            }
         }
     }
 
