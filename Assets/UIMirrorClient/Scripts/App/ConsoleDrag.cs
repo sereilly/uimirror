@@ -10,7 +10,7 @@ public class ConsoleDrag : MonoBehaviour, IDragHandler
     {
         float scaleFactor = consolePanel.GetComponentInParent<Canvas>().scaleFactor;
         Vector2 sizeDelta = consolePanel.sizeDelta;
-        sizeDelta.y = Mathf.Clamp(data.position.y, 0, Screen.height - 30 * scaleFactor) / scaleFactor;
+        sizeDelta.y = Mathf.Clamp(Screen.height - data.position.y, 0, Screen.height - 30 * scaleFactor) / scaleFactor;
         if (sizeDelta.y < 20)
         {
             sizeDelta.y = 0;

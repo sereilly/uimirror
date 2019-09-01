@@ -779,9 +779,19 @@ namespace Microsoft.MixedReality.SpectatorView
                             return null;
                         }
                     }
+
                     UInt32 dataLength = reader.ReadUInt32();
+
+                    // Empty server disconnect message
+                    if (dataLength == 0)
+                    {
+                        Disconnect();
+                        return null;
+                    }
+
                     byte[] data = new byte[dataLength];
                     int bytesRead = 0;
+
                     while (bytesRead < dataLength)
                     {
                         bytesRead += reader.Read(data, bytesRead, (int)dataLength - bytesRead);
@@ -1549,9 +1559,11 @@ namespace Microsoft.MixedReality.SpectatorView
                 Dictionary<Socket, EndPoint> tmpClients = new Dictionary<Socket, EndPoint>(clients);
                 foreach (var entry in tmpClients)
                 {
-                    KillSocket(entry.Key);
-                    RemoveClient(entry.Key);
-                    OnDisconnect(entry.Key, entry.Value);
+                    Socket clientSocket = entry.Key;
+                    clientSocket.Send(new byte[4]); // send an empty message to the client to signal a disconnect
+                    KillSocket(clientSocket);
+                    RemoveClient(clientSocket);
+                    OnDisconnect(clientSocket, entry.Value);
                 }
             }
 

@@ -133,7 +133,8 @@ public class PanZoom : MonoBehaviour, IDragHandler
     {
         if (Input.touchCount == 1)
         {
-            clientCamera.transform.localPosition -= new Vector3(eventData.delta.x, eventData.delta.y) * canvasTransform.GetComponent<Canvas>().scaleFactor * 0.5f;
+            Vector3 worldDelta = clientCamera.ScreenToWorldPoint(eventData.delta) - clientCamera.ScreenToWorldPoint(Vector3.zero);
+            clientCamera.transform.position -= worldDelta;
         }
     }
 }

@@ -1,21 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class AppConsole : MonoBehaviour
 {
     [SerializeField]
-    protected TextMeshProUGUI textbox;
+    protected Transform textbox;
+    [SerializeField]
+    protected TextMeshProUGUI consoleTextPrefab;
+
     public static AppConsole Instance;
 
-    public LinkedList<string> lines = new LinkedList<string>();
-    private const int maxMessages = 30;
+    private const int maxMessages = 50;
 
     protected void Awake()
     {
         Instance = this;
-        textbox.text = string.Empty;
+        foreach (Transform child in textbox)
+        {
+            Destroy(child.gameObject);
+        }
+
+        for (int i = 0; i < maxMessages; i++)
+        {
+            TextMeshProUGUI consoleText = Instantiate(consoleTextPrefab);
+            consoleText.transform.SetParent(textbox, false);
+            consoleText.text = string.Empty;
+        }
     }
 
     public void Log(string message, LogType type)
@@ -35,13 +45,10 @@ public class AppConsole : MonoBehaviour
         }
 
         string coloredMessage = string.Format("<color=\"{0}\">{1}</color>", colorString, message);
-        lines.AddFirst(coloredMessage);
 
-        if (lines.Count > maxMessages)
-        {
-            lines.RemoveLast();
-        }
+        var consoleText = textbox.GetChild(0);
+        consoleText.GetComponent<TextMeshProUGUI>().text = coloredMessage;
+        consoleText.transform.SetAsLastSibling();
 
-        textbox.text = string.Join(Environment.NewLine, lines);
     }
 }
